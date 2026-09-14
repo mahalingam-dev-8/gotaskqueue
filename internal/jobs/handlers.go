@@ -9,8 +9,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/ekkomd/gotaskqueue/internal/queue"
-	"github.com/ekkomd/gotaskqueue/internal/worker"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/queue"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/worker"
 )
 
 // Job type names. Keeping them as constants means the API and the worker cannot

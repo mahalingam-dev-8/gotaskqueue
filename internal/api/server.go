@@ -9,9 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/ekkomd/gotaskqueue/internal/auth"
-	"github.com/ekkomd/gotaskqueue/internal/config"
-	"github.com/ekkomd/gotaskqueue/internal/queue"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/auth"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/config"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/queue"
 )
 
 // Server owns the HTTP server and its dependencies.

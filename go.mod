@@ -1,4 +1,4 @@
-module github.com/ekkomd/gotaskqueue
+module github.com/mahalingam-dev-8/gotaskqueue
 
 go 1.25
 

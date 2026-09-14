@@ -12,8 +12,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/ekkomd/gotaskqueue/internal/config"
-	"github.com/ekkomd/gotaskqueue/internal/queue"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/config"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/queue"
 )
 
 // dbOpTimeout bounds the status-update writes that follow a job. These run on a

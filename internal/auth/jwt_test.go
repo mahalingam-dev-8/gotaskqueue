@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/ekkomd/gotaskqueue/internal/config"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/config"
 )
 
 func testConfig() config.JWTConfig {

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ekkomd/gotaskqueue/internal/queue"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/queue"
 )
 
 func TestRegistryLookup(t *testing.T) {

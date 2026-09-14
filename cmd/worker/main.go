@@ -10,13 +10,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ekkomd/gotaskqueue/internal/config"
-	"github.com/ekkomd/gotaskqueue/internal/db"
-	"github.com/ekkomd/gotaskqueue/internal/jobs"
-	"github.com/ekkomd/gotaskqueue/internal/logging"
-	"github.com/ekkomd/gotaskqueue/internal/queue"
-	"github.com/ekkomd/gotaskqueue/internal/worker"
-	"github.com/ekkomd/gotaskqueue/migrations"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/config"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/db"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/jobs"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/logging"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/queue"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/worker"
+	"github.com/mahalingam-dev-8/gotaskqueue/migrations"
 )
 
 func main() {

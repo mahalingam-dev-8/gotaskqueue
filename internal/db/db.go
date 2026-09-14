@@ -8,7 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/ekkomd/gotaskqueue/internal/config"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/config"
 )
 
 // Connect builds a pgx connection pool and verifies it can reach the database.

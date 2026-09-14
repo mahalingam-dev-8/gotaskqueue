@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/ekkomd/gotaskqueue/internal/queue"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/queue"
 )
 
 // Handler processes one job. Returning nil means success.

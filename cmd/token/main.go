@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ekkomd/gotaskqueue/internal/auth"
-	"github.com/ekkomd/gotaskqueue/internal/config"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/auth"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/config"
 )
 
 func main() {

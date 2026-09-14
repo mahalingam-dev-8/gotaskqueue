@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/ekkomd/gotaskqueue/internal/auth"
-	"github.com/ekkomd/gotaskqueue/internal/queue"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/auth"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/queue"
 )
 
 // createJobRequest is the POST /jobs body.

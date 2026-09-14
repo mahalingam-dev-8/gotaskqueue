@@ -11,13 +11,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ekkomd/gotaskqueue/internal/api"
-	"github.com/ekkomd/gotaskqueue/internal/auth"
-	"github.com/ekkomd/gotaskqueue/internal/config"
-	"github.com/ekkomd/gotaskqueue/internal/db"
-	"github.com/ekkomd/gotaskqueue/internal/logging"
-	"github.com/ekkomd/gotaskqueue/internal/queue"
-	"github.com/ekkomd/gotaskqueue/migrations"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/api"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/auth"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/config"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/db"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/logging"
+	"github.com/mahalingam-dev-8/gotaskqueue/internal/queue"
+	"github.com/mahalingam-dev-8/gotaskqueue/migrations"
 )
 
 // main stays tiny and run() returns an error, so every resource below can be
