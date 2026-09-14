@@ -142,6 +142,44 @@ curl localhost:8080/jobs/6455d7b4-... -H "Authorization: Bearer $TOKEN"
 
 Host ports are overridable if 5432/8080 are taken: `POSTGRES_PORT=5544 API_PORT=9090 docker compose up`.
 
+### Native dev loop (hot reload)
+
+Coming from `npm run start:dev`? Go has no script runner and no built-in watcher,
+so the equivalent is a `make` target plus [air](https://github.com/air-verse/air).
+Run Postgres in Docker and the two binaries on the host:
+
+```bash
+make dev-db                 # just Postgres, published on localhost:5433
+make dev-api                # API with hot reload   (air -c .air.api.toml)
+make dev-worker             # worker with hot reload (second terminal)
+make dev-token SUB=alice    # mint a JWT with the native toolchain
+```
+
+Without the watcher, `make run-api` / `make run-worker` are a plain `go run`.
+
+These targets read `.env` (copy from `.env.example`; it is gitignored). The app
+itself does **not** parse `.env` — there is no `ConfigModule` equivalent, just
+`os.Getenv` — so the Makefile exports it with `set -a && source .env` first. Note
+`.env` points at `localhost:5433`, because compose publishes Postgres on 5433 to
+avoid clashing with a system Postgres on 5432; inside compose the services talk to
+`postgres:5432` instead.
+
+One-time setup if you have no Go toolchain:
+
+```bash
+curl -fsSL https://go.dev/dl/go1.27.1.linux-amd64.tar.gz -o /tmp/go.tgz
+mkdir -p ~/.local && tar -C ~/.local -xzf /tmp/go.tgz     # no sudo needed
+echo 'export PATH="$PATH:$HOME/.local/go/bin:$HOME/go/bin"' >> ~/.bashrc
+source ~/.bashrc && go install github.com/air-verse/air@latest
+```
+
+> **`go run` gotcha:** `go run` compiles to a temp binary and execs it as a *child*
+> process. Killing the `go run` parent (Ctrl-C in another window, `pkill go`) can
+> leave that child holding port 8080. Ctrl-C in the foreground terminal is fine —
+> the signal reaches the whole process group. Otherwise kill the child directly:
+> `pkill -f 'exe/api'`. `air` does not have this problem; it tracks the child and
+> sends it SIGINT on reload, so graceful shutdown runs on every save.
+
 ### Things worth trying
 
 ```bash
@@ -170,9 +208,12 @@ docker compose stop worker      # SIGTERM -> "draining in-flight jobs" -> "stopp
 ### Useful make targets
 
 ```
-make up | down | logs | psql | token     docker-compose helpers
-make build | test | vet | tidy           needs a local Go 1.25+
-make docker-tidy                         go mod tidy without installing Go
+make up | down | logs | psql | token           docker-compose helpers
+make dev-db | dev-api | dev-worker             native dev loop with hot reload
+make run-api | run-worker | dev-token          native, no watcher
+make build | test | vet | tidy                 needs a local Go 1.25+
+make docker-tidy                               go mod tidy without installing Go
+make help                                      list every target
 ```
 
 ---

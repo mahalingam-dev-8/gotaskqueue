@@ -31,6 +31,36 @@ vet: ## go vet + gofmt check
 	go vet ./...
 	@test -z "$$(gofmt -l .)" || (gofmt -l . && exit 1)
 
+# ---------------------------------------------------------------------------
+# Native dev loop (Go on the host, Postgres in Docker).
+# Closest thing this project has to `npm run start:dev`.
+# All of these source .env first -- the app itself does not read .env files.
+# ---------------------------------------------------------------------------
+
+.PHONY: dev-db
+dev-db: ## Start ONLY Postgres (published on localhost:5433) for native dev
+	$(COMPOSE) up -d postgres
+
+.PHONY: run-api
+run-api: ## go run the API once, no reload (needs: make dev-db)
+	set -a && source .env && set +a && go run ./cmd/api
+
+.PHONY: run-worker
+run-worker: ## go run the worker once, no reload (needs: make dev-db)
+	set -a && source .env && set +a && go run ./cmd/worker
+
+.PHONY: dev-api
+dev-api: ## API with hot reload on file save (needs: make dev-db)
+	set -a && source .env && set +a && air -c .air.api.toml
+
+.PHONY: dev-worker
+dev-worker: ## Worker with hot reload on file save (needs: make dev-db)
+	set -a && source .env && set +a && air -c .air.worker.toml
+
+.PHONY: dev-token
+dev-token: ## Mint a dev JWT using the native toolchain (make dev-token SUB=alice)
+	@set -a && source .env && set +a && go run ./cmd/token -sub $${SUB:-local-dev}
+
 .PHONY: up
 up: ## Start Postgres + api + worker
 	$(COMPOSE) up --build

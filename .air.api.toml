@@ -1,0 +1,23 @@
+# Hot-reload config for cmd/api — the rough equivalent of `nest start --watch`.
+#   air -c .air.api.toml     (or: make dev-api)
+root = "."
+tmp_dir = ".tmp/air-api"
+
+[build]
+  cmd = "go build -o .tmp/air-api/api ./cmd/api"
+  bin = ".tmp/air-api/api"
+  # air does not read .env itself; the Makefile target exports it before running.
+  include_ext = ["go", "sql", "tmpl"]
+  exclude_dir = [".git", ".tmp", "bin", "dist", ".github"]
+  exclude_regex = ["_test\\.go"]
+  # Wait for the editor to finish writing before rebuilding.
+  delay = 300
+  stop_on_error = false
+  send_interrupt = true   # SIGINT, so graceful shutdown actually runs on reload
+  kill_delay = "2s"
+
+[log]
+  time = true
+
+[misc]
+  clean_on_exit = true
