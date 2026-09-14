@@ -1,0 +1,94 @@
+# Local development stack: Postgres + API + worker.
+#
+#   docker compose up --build              # start everything
+#   docker compose up --build --scale worker=3   # prove SKIP LOCKED works
+#   docker compose run --rm token          # mint a dev JWT
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: gotaskqueue
+      POSTGRES_PASSWORD: gotaskqueue
+      POSTGRES_DB: gotaskqueue
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Other services wait on this, so they never race the first-boot initdb.
+      test: ["CMD-SHELL", "pg_isready -U gotaskqueue -d gotaskqueue"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      args:
+        SERVICE: api
+    environment:
+      APP_ENV: development
+      LOG_LEVEL: debug
+      LOG_FORMAT: text
+      DATABASE_URL: postgres://gotaskqueue:gotaskqueue@postgres:5432/gotaskqueue?sslmode=disable
+      DB_MAX_CONNS: "10"
+      RUN_MIGRATIONS: "true"
+      HTTP_PORT: "8080"
+      JWT_SECRET: ${JWT_SECRET:-local-dev-secret-change-me-0123456789}
+      JWT_ISSUER: gotaskqueue
+      JWT_AUDIENCE: gotaskqueue-api
+      DEFAULT_MAX_ATTEMPTS: "5"
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      args:
+        SERVICE: worker
+    environment:
+      APP_ENV: development
+      LOG_LEVEL: debug
+      LOG_FORMAT: text
+      DATABASE_URL: postgres://gotaskqueue:gotaskqueue@postgres:5432/gotaskqueue?sslmode=disable
+      DB_MAX_CONNS: "10"
+      # The API owns migrations; workers just consume.
+      RUN_MIGRATIONS: "false"
+      WORKER_POOL_SIZE: "5"
+      WORKER_POLL_INTERVAL: "1s"
+      WORKER_JOB_TIMEOUT: "30s"
+      RETRY_BASE_BACKOFF: "5s"
+      RETRY_MAX_BACKOFF: "2m"
+      STUCK_JOB_TIMEOUT: "2m"
+      RECOVERY_INTERVAL: "30s"
+      WORKER_SHUTDOWN_GRACE: "30s"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
+    # SIGTERM first, and 45s before SIGKILL — enough for in-flight jobs to drain.
+    stop_signal: SIGTERM
+    stop_grace_period: 45s
+    restart: unless-stopped
+
+  # Utility container, not started by `docker compose up` (it has a profile).
+  #   docker compose run --rm token -sub alice -ttl 24h
+  token:
+    build:
+      context: .
+      args:
+        SERVICE: token
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-local-dev-secret-change-me-0123456789}
+      JWT_ISSUER: gotaskqueue
+      JWT_AUDIENCE: gotaskqueue-api
+    profiles: ["tools"]
+
+volumes:
+  pgdata:
