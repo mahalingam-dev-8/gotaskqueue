@@ -4,6 +4,12 @@
 SHELL := /bin/bash
 COMPOSE := docker compose
 
+# Resolve the Go toolchain and air without depending on the calling shell's PATH.
+# A terminal opened before ~/.bashrc was updated would otherwise fail with
+# "air: command not found". make exports this to every recipe below.
+export PATH := $(HOME)/.local/go/bin:$(HOME)/go/bin:$(PATH)
+export GOBIN := $(HOME)/go/bin
+
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -37,8 +43,20 @@ vet: ## go vet + gofmt check
 # All of these source .env first -- the app itself does not read .env files.
 # ---------------------------------------------------------------------------
 
+.PHONY: check-tools
+check-tools: ## Verify the Go toolchain and air are installed
+	@command -v go >/dev/null 2>&1 || { \
+	  echo "go not found. Install it with:"; \
+	  echo "  curl -fsSL https://go.dev/dl/go1.27.1.linux-amd64.tar.gz -o /tmp/go.tgz"; \
+	  echo "  mkdir -p ~/.local && tar -C ~/.local -xzf /tmp/go.tgz"; \
+	  exit 1; }
+	@command -v air >/dev/null 2>&1 || { \
+	  echo "air not found. Install it with:"; \
+	  echo "  go install github.com/air-verse/air@latest"; \
+	  exit 1; }
+
 .PHONY: dev
-dev: ## ONE COMMAND: Postgres + API + worker, both hot-reloading (Ctrl-C stops all)
+dev: check-tools ## ONE COMMAND: Postgres + API + worker, both hot-reloading (Ctrl-C stops all)
 	@docker compose up -d postgres
 	@docker compose stop api worker >/dev/null 2>&1 || true
 	@printf 'waiting for postgres'; \
@@ -64,11 +82,11 @@ run-worker: ## go run the worker once, no reload (needs: make dev-db)
 	set -a && source .env && set +a && go run ./cmd/worker
 
 .PHONY: dev-api
-dev-api: ## API with hot reload on file save (needs: make dev-db)
+dev-api: check-tools ## API with hot reload on file save (needs: make dev-db)
 	set -a && source .env && set +a && air -c .air.api.toml
 
 .PHONY: dev-worker
-dev-worker: ## Worker with hot reload on file save (needs: make dev-db)
+dev-worker: check-tools ## Worker with hot reload on file save (needs: make dev-db)
 	set -a && source .env && set +a && air -c .air.worker.toml
 
 .PHONY: dev-token
