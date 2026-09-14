@@ -37,6 +37,20 @@ vet: ## go vet + gofmt check
 # All of these source .env first -- the app itself does not read .env files.
 # ---------------------------------------------------------------------------
 
+.PHONY: dev
+dev: ## ONE COMMAND: Postgres + API + worker, both hot-reloading (Ctrl-C stops all)
+	@docker compose up -d postgres
+	@docker compose stop api worker >/dev/null 2>&1 || true
+	@printf 'waiting for postgres'; \
+	  until docker compose exec -T postgres pg_isready -U gotaskqueue -d gotaskqueue >/dev/null 2>&1; do \
+	    printf '.'; sleep 1; \
+	  done; echo ' ready'
+	@set -a && source .env && set +a && \
+	  trap 'kill 0' EXIT INT TERM; \
+	  air -c .air.api.toml & \
+	  air -c .air.worker.toml & \
+	  wait
+
 .PHONY: dev-db
 dev-db: ## Start ONLY Postgres (published on localhost:5433) for native dev
 	$(COMPOSE) up -d postgres

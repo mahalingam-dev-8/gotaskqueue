@@ -5,7 +5,7 @@ tmp_dir = ".tmp/air-worker"
 
 [build]
   cmd = "go build -o .tmp/air-worker/worker ./cmd/worker"
-  bin = ".tmp/air-worker/worker"
+  entrypoint = ".tmp/air-worker/worker"
   # air does not read .env itself; the Makefile target exports it before running.
   include_ext = ["go", "sql", "tmpl"]
   exclude_dir = [".git", ".tmp", "bin", "dist", ".github"]

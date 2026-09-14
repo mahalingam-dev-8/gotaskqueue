@@ -149,9 +149,19 @@ so the equivalent is a `make` target plus [air](https://github.com/air-verse/air
 Run Postgres in Docker and the two binaries on the host:
 
 ```bash
+make dev                    # <- the one you want: Postgres + API + worker, hot reload
+```
+
+That starts Postgres in Docker, waits for it to be healthy, then runs both
+binaries on the host under `air`. Ctrl-C stops both and lets each finish its
+graceful shutdown. Logs from the two processes interleave in the one terminal.
+
+To run them separately (one per terminal, cleaner logs):
+
+```bash
 make dev-db                 # just Postgres, published on localhost:5433
 make dev-api                # API with hot reload   (air -c .air.api.toml)
-make dev-worker             # worker with hot reload (second terminal)
+make dev-worker             # worker with hot reload
 make dev-token SUB=alice    # mint a JWT with the native toolchain
 ```
 
@@ -209,7 +219,8 @@ docker compose stop worker      # SIGTERM -> "draining in-flight jobs" -> "stopp
 
 ```
 make up | down | logs | psql | token           docker-compose helpers
-make dev-db | dev-api | dev-worker             native dev loop with hot reload
+make dev                                       local dev: everything, hot reload
+make dev-db | dev-api | dev-worker             the same, one process per terminal
 make run-api | run-worker | dev-token          native, no watcher
 make build | test | vet | tidy                 needs a local Go 1.25+
 make docker-tidy                               go mod tidy without installing Go
